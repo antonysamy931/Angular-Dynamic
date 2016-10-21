@@ -6,20 +6,25 @@
 
 <html ng-app="myApp">
 <head>
-    <script src="~/Scripts/angular.js"></script>
+    <link rel="stylesheet" href="~/Content/Kendo/kendo.common.core.css" />
+    
     <script src="~/Scripts/jquery-1.7.1.js"></script>
+    <script src="~/Scripts/angular.js"></script>    
+
     <script src="~/Models/MyJs.js"></script>
     <meta name="viewport" content="width=device-width" />
-    <title>Index</title>    
+    <title>Index</title>
 </head>
 <body>
     <div ng-controller="first">
         <span>{{name}}</span>
         <input type="button" ng-click="Call2()" value="Show2" />
-        <a href="javascript:void(0)" class="opencontroller" v-controller="second" v-bind-id="SecondBind" v-load-template="Second.html" communicator>Test</a>
-        <communicator v-controller="second" ></communicator>
+        @*<a href="javascript:void(0)" class="opencontroller" v-controller="second" v-bind-id="SecondBind" v-load-template="Second.html" communicator>Test</a>*@
+        <communicator v-controller="second" v-bind-id="SecondBind" v-load-template="Second.html"></communicator>
+        @*<communicator v-controller="second" ></communicator>*@
         <div id="SecondBind">
         </div>
     </div>
 </body>
 </html>
+

@@ -1,6 +1,9 @@
 ﻿var app = angular.module('myApp', []);
 app.controller('first', ['$scope', '$controller', '$compile', '$http', function ($scope, $controller, $compile, $http) {
     $scope.name = "sample";
+
+    $("#SecondBind").css({ 'display': 'none' });
+
     $scope.Call2 = function () {
 
         var model = $scope.$new();
@@ -20,6 +23,7 @@ app.controller('first', ['$scope', '$controller', '$compile', '$http', function 
 }]);
 
 app.controller('second', function ($scope, $controller) {
+
     $scope.TestFun = function () {
         $scope.text = "mark antony";
     }
@@ -46,7 +50,7 @@ app.directive('test', function () {
                 }).then(function (response) {
                     content.html(response.data);
                     $compile(content)(newSocpe);
-                    newSocpe.TestFun();
+                    newSocpe.TestFun();                    
                 });
             });
         }
@@ -80,12 +84,46 @@ app.directive('test', function () {
 //    }
 //});
 
+//app.directive('communicator', function () {
+//    return {
+//        restrict: 'E',
+//        scope: {},
+//        template: "<input type='text' ng-model='message'/><input type='button' value='Send Message' ng-click='Hi()'><br/>",
+//        controller: "@",
+//        name: "vController"
+//    }
+//})
+
 app.directive('communicator', function () {
     return {
-        restrict: 'E',
-        scope: {},
-        template: "<input type='text' ng-model='message'/><input type='button' value='Send Message' ng-click='Hi()'><br/>",
-        controller: "@",
-        name: "vController"
+        restrict: 'E', //Default in 1.3+ 
+        scope: {
+            vController: '@',
+            vBindId: '@',
+            vLoadTemplate: '@'
+        },
+        controller: ['$scope', '$controller', '$compile', '$http', '$window', function ($scope, $controller, $compile, $http, $window) {            
+            $scope.popup = function () {
+
+                var controller = $scope.vController;
+                var bindElementId = $scope.vBindId;
+                var templateUrl = $scope.vLoadTemplate;
+                var newSocpe = $scope.$new();
+                $controller(controller, { $scope: newSocpe });
+                var content = $('#' + bindElementId);
+                $http({
+                    method: 'GET',
+                    url: templateUrl
+                }).then(function (response) {
+                    content.html(response.data);
+                    $compile(content)(newSocpe);
+                    newSocpe.TestFun();
+                    $('#' + bindElementId).fadeIn(1000);
+                });
+
+            };
+
+        }],
+        template : '<a href="javascript:void(0)" ng-click="popup()">sample</a>'
     }
-})
+});
