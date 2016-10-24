@@ -74,11 +74,42 @@ namespace FileUpload.Angular.Controllers
         }
 
         [HttpGet]
+        public HttpResponseMessage GetPdf(string name)
+        {            
+            string sPath = "";
+            sPath = HostingEnvironment.MapPath("~/locker/");
+            sPath = sPath + name + ".pdf";
+            if (!File.Exists(sPath))
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+
+            FileStream fileStream = File.Open(sPath, FileMode.Open);
+            HttpResponseMessage response = new HttpResponseMessage { Content = new StreamContent(fileStream) };
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+            response.Content.Headers.ContentLength = fileStream.Length;
+            return response;
+        }
+
+        [HttpGet]
         public byte[] GetImage(string name)
         {
             string sPath = "";
             sPath = HostingEnvironment.MapPath("~/locker/");
             sPath = sPath + name + ".jpg";
+            if (!File.Exists(sPath))
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+
+            FileStream fileStream = File.Open(sPath, FileMode.Open);
+            byte[] content = ReadFully(fileStream);
+            fileStream.Dispose();
+            return content;
+        }
+
+        [HttpGet]
+        public byte[] GetPdfByte(string name)
+        {
+            string sPath = "";
+            sPath = HostingEnvironment.MapPath("~/locker/");
+            sPath = sPath + name + ".pdf";
             if (!File.Exists(sPath))
                 throw new HttpResponseException(HttpStatusCode.NotFound);
 

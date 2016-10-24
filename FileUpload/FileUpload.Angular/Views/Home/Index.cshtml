@@ -1,11 +1,10 @@
 ﻿<script src="~/Scripts/angular.js"></script>
 <script type="text/javascript">
     var app = angular.module("myApp", []);
-    app.controller("fupController", ["$scope", "$http", function ($scope, $http) {
+    app.controller("fupController", ["$scope", "$http", "$window", "$sce", function ($scope, $http, $window, $sce) {
 
         //GET THE FILE SOURCE
         $scope.getFile = function (filename) {
-
             $http({
                 type: "GET",
                 url: "/api/Upload/GetImage?name=" + filename
@@ -15,7 +14,27 @@
             });
         };
 
-        $scope.getFile("Chrysanthemum");
+        $scope.getPdf = function (filename) {
+            $http({
+                type: "GET",
+                url: "/api/Upload/GetPdfByte?name=" + filename
+            }).success(function (response) {
+                //var byteArray = new Uint8Array(response);
+                //var blob = new Blob([byteArray], { type: 'application/pdf' });
+                //if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                //    window.navigator.msSaveOrOpenBlob(blob);
+                //}
+                //else {
+                //    var objectUrl = URL.createObjectURL(blob);
+                //    window.open(objectUrl);
+                //}
+                $window.open("data:application/pdf;base64," + response, "Preview", "width=900;height=600");
+            }).error(function (error) {
+            });
+        };
+
+        $scope.getFile("ICN_Logo");
+        $scope.getPdf("Yoga Therapy full book");
 
         // GET THE FILE INFORMATION.
         $scope.getFileDetails = function (e) {
@@ -41,14 +60,26 @@
                 data.append("uploadedFile", $scope.files[i]);
             }
 
-            // ADD LISTENERS.
-            var objXhr = new XMLHttpRequest();
-            objXhr.addEventListener("progress", updateProgress, false);
-            objXhr.addEventListener("load", transferComplete, false);
+            $http({
+                method: "POST",
+                url: "/api/Upload/UploadFiles",
+                data: data,
+                headers: { 'Content-Type': undefined }
+            }).success(function (data) {
+            }).error(function (error) {
+            });
 
-            // SEND FILE DETAILS TO THE API.
-            objXhr.open("POST", "/api/Upload/UploadFiles/");
-            objXhr.send(data);
+            if (false) {
+                // Another way of upload file
+                // ADD LISTENERS.
+                var objXhr = new XMLHttpRequest();
+                objXhr.addEventListener("progress", updateProgress, false);
+                objXhr.addEventListener("load", transferComplete, false);
+
+                // SEND FILE DETAILS TO THE API.
+                objXhr.open("POST", "/api/Upload/UploadFiles/");
+                objXhr.send(data);
+            }
         }
 
         // UPDATE PROGRESS BAR.
@@ -63,11 +94,20 @@
         function transferComplete(e) {
             alert("Files uploaded successfully.");
         }
+
+        $scope.ShowPdf = function () {
+            $window.open("http://localhost:54059/locker/Yoga%20Therapy%20full%20book.pdf", "PDF Preview", "width=900,height=600");
+        };
     }]);
 </script>
 
 <div ng-app="myApp">
     <div ng-controller="fupController">
+
+        @*<embed ng-src="{{content}}" style="width:200px;height:200px;"></embed>*@
+
+        <a href="#" ng-click="ShowPdf()">Preview pdf</a>
+
         <input type="file" id="file" name="file" multiple
             onchange="angular.element(this).scope().getFileDetails(this)" />
 
@@ -77,5 +117,7 @@
         <p><progress id="pro" value="0"></progress></p>
         <img src="data:image/JPEG;base64,{{result}}" />
         <img src="/api/Upload/Get?name=Chrysanthemum" />
+
+
     </div>
 </div>
