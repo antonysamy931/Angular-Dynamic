@@ -102,7 +102,7 @@ app.directive('communicator', function () {
             vBindId: '@',
             vLoadTemplate: '@'
         },
-        controller: ['$scope', '$controller', '$compile', '$http', '$window', function ($scope, $controller, $compile, $http, $window) {            
+        controller: ['$scope', '$controller', '$compile', '$http', function ($scope, $controller, $compile, $http) {
             $scope.popup = function () {
 
                 var controller = $scope.vController;
