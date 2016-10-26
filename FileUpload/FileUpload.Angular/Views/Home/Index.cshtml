@@ -6,7 +6,7 @@
         //GET THE FILE SOURCE
         $scope.getFile = function (filename) {
             $http({
-                type: "GET",
+                method: "GET",
                 url: "/api/Upload/GetImage?name=" + filename
             }).success(function (result) {
                 $scope.result = result;
@@ -16,25 +16,29 @@
 
         $scope.getPdf = function (filename) {
             $http({
-                type: "GET",
+                method: "GET",
                 url: "/api/Upload/GetPdfByte?name=" + filename
-            }).success(function (response) {
-                //var byteArray = new Uint8Array(response);
-                //var blob = new Blob([byteArray], { type: 'application/pdf' });
-                //if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-                //    window.navigator.msSaveOrOpenBlob(blob);
-                //}
-                //else {
-                //    var objectUrl = URL.createObjectURL(blob);
-                //    window.open(objectUrl);
-                //}
+            }).success(function (response) {                
                 $window.open("data:application/pdf;base64," + response, "Preview", "width=900;height=600");
             }).error(function (error) {
             });
         };
 
+        $scope.getImages = function () {
+            $http({
+                method: "GET",
+                url: "/api/Upload/GetImages"
+            }).success(function (response) {
+                $scope.Images = response;
+            }).error(function (error) {
+            });
+        }
+
         $scope.getFile("ICN_Logo");
-        $scope.getPdf("Yoga Therapy full book");
+
+        //$scope.getPdf("Yoga Therapy full book");
+
+        $scope.getImages();
 
         // GET THE FILE INFORMATION.
         $scope.getFileDetails = function (e) {
@@ -105,6 +109,15 @@
     <div ng-controller="fupController">
 
         @*<embed ng-src="{{content}}" style="width:200px;height:200px;"></embed>*@
+
+        <div ng-repeat="image in Images">
+            <div>
+                <a href="{{image.Url}}" target="_blank">{{image.Name}}</a>
+                <img src="data:image/JPEG;base64,{{image.Content}}" alt="Image" />
+                <br />
+
+            </div>
+        </div>
 
         <a href="#" ng-click="ShowPdf()">Preview pdf</a>
 

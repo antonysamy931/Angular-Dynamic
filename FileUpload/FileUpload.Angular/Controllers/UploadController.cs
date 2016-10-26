@@ -66,7 +66,7 @@ namespace FileUpload.Angular.Controllers
             if (!File.Exists(sPath))
                 throw new HttpResponseException(HttpStatusCode.NotFound);
 
-            FileStream fileStream = File.Open(sPath, FileMode.Open);            
+            FileStream fileStream = File.Open(sPath, FileMode.Open);
             HttpResponseMessage response = new HttpResponseMessage { Content = new StreamContent(fileStream) };
             response.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpg");
             response.Content.Headers.ContentLength = fileStream.Length;
@@ -75,7 +75,7 @@ namespace FileUpload.Angular.Controllers
 
         [HttpGet]
         public HttpResponseMessage GetPdf(string name)
-        {            
+        {
             string sPath = "";
             sPath = HostingEnvironment.MapPath("~/locker/");
             sPath = sPath + name + ".pdf";
@@ -119,6 +119,25 @@ namespace FileUpload.Angular.Controllers
             return content;
         }
 
+        [HttpGet]
+        public List<ImageList> GetImages()
+        {            
+            List<ImageList> images = new List<ImageList>();
+            var directoryPath = HostingEnvironment.MapPath("~/locker/");
+            var FilesInfo = new DirectoryInfo(directoryPath).GetFiles("*.jpg");
+            foreach (var file in FilesInfo)
+            {
+                ImageList image = new ImageList();
+                image.Name = file.Name.Split('.')[0];
+                image.Url = "/Locker/" + file.Name;
+                FileStream stream = File.Open(file.FullName, FileMode.Open);
+                image.Content = ReadFully(stream);
+                stream.Dispose();
+                images.Add(image);
+            }
+            return images;
+        }
+
         private byte[] ReadFully(Stream input)
         {
             byte[] buffer = new byte[16 * 1024];
@@ -134,5 +153,12 @@ namespace FileUpload.Angular.Controllers
             }
             return buffer;
         }
+    }
+
+    public class ImageList
+    {
+        public string Name { get; set; }
+        public byte[] Content { get; set; }
+        public string Url { get; set; }
     }
 }
