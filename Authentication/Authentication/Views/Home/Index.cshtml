@@ -1,0 +1,74 @@
+﻿<script type="text/javascript" src="~/Scripts/angular.js"></script>
+<script type="text/javascript">
+    var app = angular.module("myApp", []);
+
+    app.config(function ($httpProvider) {
+        $httpProvider.interceptors.push('authInterceptorService');
+    });
+
+    app.factory('authInterceptorService', ['$q', function ($q) {
+
+        var authInterceptorServiceFactory = {};
+
+        var _request = function (config) {
+            config.headers = config.headers || {};
+            debugger;
+            var accessToken = localStorage.getItem("access-token")
+            if (!angular.isUndefined(accessToken) && accessToken !== null)
+                config.headers.Authorization = 'Basic ' + accessToken;
+            else {
+                if (config.url.contains('login'))
+                    config.headers.Authorization = 'Authentication';
+                else
+                    window.location.replace('http://www.googl.com');
+            }            
+            return config;
+        }
+
+        var _responseError = function (rejection) {
+            if (rejection.status === 401) {
+                alert("hi");
+            }
+            return $q.reject(rejection);
+        }
+
+        authInterceptorServiceFactory.request = _request;
+        authInterceptorServiceFactory.responseError = _responseError;
+
+        return authInterceptorServiceFactory;
+    }]);
+
+    app.controller("Home", ["$scope", "$http", function ($scope, $http) {
+        $scope.authenticateCheck = function () {
+            $http({
+                method: "GET",
+                url: "/api/values/get"
+            }).success(function (data, status, headers, config) {
+                alert(data);
+            }).error(function (data, status, headers, config) {
+                alert(status);
+            });
+        }
+
+        $scope.login = function () {
+            $http({
+                method: "POST",
+                url: "/api/login/Get",
+                data: { Name: "Antony", Last: "Samy" }
+            }).success(function (data, status, headers, config) {
+                localStorage.setItem("access-token", data);
+                $scope.authenticateCheck();
+            }).error(function (data, status, headers, config) {
+                alert(status);
+            });
+        };
+        $scope.login();
+        
+    }]);
+</script>
+
+<div ng-app="myApp">
+    <div ng-controller="Home">
+        <input type="button" value="click" ng-click="authenticateCheck()" />
+    </div>
+</div>
