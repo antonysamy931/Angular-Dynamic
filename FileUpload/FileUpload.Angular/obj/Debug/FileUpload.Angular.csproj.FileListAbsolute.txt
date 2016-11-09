@@ -30,3 +30,5 @@ D:\Antony\Prakash\Angular\FileUpload\FileUpload.Angular\bin\System.Web.WebPages.
 D:\Antony\Prakash\Angular\FileUpload\FileUpload.Angular\obj\Debug\FileUpload.Angular.csprojResolveAssemblyReference.cache
 D:\Antony\Prakash\Angular\FileUpload\FileUpload.Angular\obj\Debug\FileUpload.Angular.dll
 D:\Antony\Prakash\Angular\FileUpload\FileUpload.Angular\obj\Debug\FileUpload.Angular.pdb
+D:\Antony\Prakash\Angular\FileUpload\FileUpload.Angular\bin\ImageResizer.dll
+D:\Antony\Prakash\Angular\FileUpload\FileUpload.Angular\bin\ImageResizer.xml

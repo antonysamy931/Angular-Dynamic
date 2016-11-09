@@ -1,0 +1,38 @@
+﻿<script src="~/Scripts/jquery-1.7.1.js"></script>
+<script src="~/Scripts/jquery-ui-1.8.20.js"></script>
+<link href="~/Content/themes/base/jquery.ui.all.css" rel="stylesheet" />
+<script src="~/Scripts/jquery.signalR-2.2.1.js"></script>
+<script src="/signalr/hubs"></script>
+<script type="text/javascript">
+    $(function () { //This section will run whenever we call Chat.cshtml page        
+        var objHub = $.connection.ProgressHub;
+        var pro = $('#progress').progressbar(function () {            
+            max: 10000
+        });
+
+        objHub.client.Send = function (data) {
+            console.log(data);
+            setTimeout(function () {
+                pro.progressbar('value', Number(data));
+            }, 1);
+        }
+
+        $('#click').click(function () {
+            $.ajax({
+                url: "/api/values/get",
+                type: "get"
+            }).success(function () {
+            }).error(function () {
+            });
+        });
+
+        $.connection.hub.start().done(function () {
+
+            console.log($.connection.hub.id);
+            //objHub.server.send();
+
+        });
+    });
+</script>
+<div id="progress"></div>
+<input type="button" id="click" value="click" />

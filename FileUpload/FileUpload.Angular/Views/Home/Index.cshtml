@@ -18,23 +18,26 @@
             $http({
                 method: "GET",
                 url: "/api/Upload/GetPdfByte?name=" + filename
-            }).success(function (response) {                
+            }).success(function (response) {
                 $window.open("data:application/pdf;base64," + response, "Preview", "width=900;height=600");
             }).error(function (error) {
             });
         };
 
         $scope.getImages = function () {
+            if (angular.isUndefined($scope.Id)) {
+                $scope.Id = 12;
+            }
             $http({
                 method: "GET",
-                url: "/api/Upload/GetImages"
+                url: "/api/Upload/GetImages?id=" + $scope.Id
             }).success(function (response) {
                 $scope.Images = response;
             }).error(function (error) {
             });
         }
 
-        $scope.getFile("ICN_Logo");
+        //$scope.getFile("ICN_Logo");
 
         //$scope.getPdf("Yoga Therapy full book");
 
@@ -54,6 +57,19 @@
             });
         };
 
+        $scope.Delete = function () {
+            $http({
+                method: "POST",
+                url: "/api/Upload/Delete?id=12&name=Desert",
+            }).success(function (data) {                
+            }).error(function (error) {
+            });
+        };
+
+        $scope.DeleteClick = function () {
+            $scope.Delete();
+        };
+
         // NOW UPLOAD THE FILES.
         $scope.uploadFiles = function () {
 
@@ -66,10 +82,14 @@
 
             $http({
                 method: "POST",
-                url: "/api/Upload/UploadFiles",
+                url: "/api/Upload/UploadFiles?id=" + $scope.Id,
                 data: data,
                 headers: { 'Content-Type': undefined }
             }).success(function (data) {
+                $scope.getImages();
+                document.getElementById('file').value = '';
+                $scope.Id = '';
+                $scope.files = [];
             }).error(function (error) {
             });
 
@@ -114,22 +134,23 @@
             <div>
                 <a href="{{image.Url}}" target="_blank">{{image.Name}}</a>
                 <img src="data:image/JPEG;base64,{{image.Content}}" alt="Image" />
+                <input type="button" value="Delete" ng-click="DeleteClick()" />
                 <br />
 
             </div>
         </div>
 
-        <a href="#" ng-click="ShowPdf()">Preview pdf</a>
-
+        @*<a href="#" ng-click="ShowPdf()">Preview pdf</a>*@
+        <input type="text" ng-model="Id" />
         <input type="file" id="file" name="file" multiple
             onchange="angular.element(this).scope().getFileDetails(this)" />
 
         <input type="button" ng-click="uploadFiles()" value="Upload" />
 
         <!--ADD A PROGRESS BAR ELEMENT.-->
-        <p><progress id="pro" value="0"></progress></p>
-        <img src="data:image/JPEG;base64,{{result}}" />
-        <img src="/api/Upload/Get?name=Chrysanthemum" />
+        <p>@*<progress id="pro" value="0"></progress>*@</p>
+        @*<img src="data:image/JPEG;base64,{{result}}" />*@
+        @* <img src="/api/Upload/Get?name=Chrysanthemum" />*@
 
 
     </div>

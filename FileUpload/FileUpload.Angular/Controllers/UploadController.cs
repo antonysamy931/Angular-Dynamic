@@ -8,19 +8,27 @@ using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Hosting;
 using System.Web.Http;
+using ImageResizer;
 
 namespace FileUpload.Angular.Controllers
 {
     public class UploadController : ApiController
     {
+        private Dictionary<string, string> settings = new Dictionary<string, string>();
+
+        public UploadController()
+        {
+            settings.Add("1", "width=200;height=200;format=jpg;mode=max");
+            settings.Add("2", "width=400;height=400;format=jpg;mode=max");
+        }
         [HttpPost]
-        public string UploadFiles()
+        public string UploadFiles(int id)
         {
             int iUploadedCnt = 0;
 
             // DEFINE THE PATH WHERE WE WANT TO SAVE THE FILES.
             string sPath = "";
-            sPath = HostingEnvironment.MapPath("~/locker/");
+            sPath = HostingEnvironment.MapPath("~/locker/" + id + "/");
 
             if (!Directory.Exists(sPath))
             {
@@ -36,12 +44,18 @@ namespace FileUpload.Angular.Controllers
 
                 if (hpf.ContentLength > 0)
                 {
+                    string newPath = sPath + Path.GetFileName(hpf.FileName);
                     // CHECK IF THE SELECTED FILE(S) ALREADY EXISTS IN FOLDER. (AVOID DUPLICATE)
-                    if (!File.Exists(sPath + Path.GetFileName(hpf.FileName)))
+                    if (!File.Exists(newPath))
                     {
                         // SAVE THE FILES IN THE FOLDER.
-                        hpf.SaveAs(sPath + Path.GetFileName(hpf.FileName));
+                        hpf.SaveAs(newPath);
                         iUploadedCnt = iUploadedCnt + 1;
+                    }
+                    foreach (var item in settings)
+                    {
+                        var filePath = sPath + Path.GetFileNameWithoutExtension(hpf.FileName) + "_" + item.Key + ".jpg";
+                        ImageBuilder.Current.Build(newPath, filePath, new ResizeSettings(item.Value));
                     }
                 }
             }
@@ -120,22 +134,35 @@ namespace FileUpload.Angular.Controllers
         }
 
         [HttpGet]
-        public List<ImageList> GetImages()
-        {            
+        public List<ImageList> GetImages(int id)
+        {
             List<ImageList> images = new List<ImageList>();
-            var directoryPath = HostingEnvironment.MapPath("~/locker/");
+            var directoryPath = HostingEnvironment.MapPath("~/locker/" + id + "/");
             var FilesInfo = new DirectoryInfo(directoryPath).GetFiles("*.jpg");
             foreach (var file in FilesInfo)
             {
                 ImageList image = new ImageList();
                 image.Name = file.Name.Split('.')[0];
-                image.Url = "/Locker/" + file.Name;
+                image.Url = "/Locker/" + id + "/" + file.Name;
                 FileStream stream = File.Open(file.FullName, FileMode.Open);
                 image.Content = ReadFully(stream);
                 stream.Dispose();
                 images.Add(image);
             }
             return images;
+        }
+
+        [HttpPost]
+        public void Delete(int id, string name)
+        {
+            string sPath = "";
+            sPath = HostingEnvironment.MapPath("~/locker/" + id + "/");
+            var newPath = sPath + name;
+            File.Delete(newPath + ".jpg");
+            foreach (var item in settings)
+            {
+                File.Delete(newPath + string.Format("_{0}.jpg", item.Key));
+            }
         }
 
         private byte[] ReadFully(Stream input)
